@@ -1,4 +1,4 @@
-# Beautiful Timelines of yourSpotify Playlists
+# Beautiful Timelines of your Spotify Playlists
 
 Visualize your playlists in a beautiful minimalistic timeline.
 

@@ -5,6 +5,7 @@ import Script from "next/script";
 export const metadata: Metadata = {
 	title: "Spotify Timelines",
 	description: "Beautiful timelines of your Spotify playlists.",
+	metadataBase: new URL("https://spotify.joostramke.com"),
 };
 
 export default function RootLayout({
