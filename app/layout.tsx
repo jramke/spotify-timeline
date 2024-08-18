@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Head from "next/head";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,6 +15,9 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
+			<Head>
+				<script defer src="https://umami.joostramke.com/script.js" data-website-id="da13d2ca-d7d3-43fa-be0c-42e26e4869a6"></script>
+			</Head>
 			<body className="dark">
 				<div className="flex flex-col min-h-screen">
 					{children}
