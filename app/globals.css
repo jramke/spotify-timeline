@@ -1,0 +1,110 @@
+@import '@fontsource-variable/plus-jakarta-sans';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--spotify: 141 73% 42%;
+		--spotify-foreground: 0 0% 7%;
+
+		--background: 0 0% 7%;
+		--foreground: 0 0% 100%;
+
+		--card: 0 0% 12%;
+		--card-foreground: 0 0% 100%;
+
+		--popover: 0 0% 12%;
+		--popover-foreground: 0 0% 100%;
+
+		--muted: 0 0% 15%;
+		--muted-foreground: 0 0% 65%;
+
+		--accent: 0 0% 15%;
+		--accent-foreground: 0 0% 100%;
+
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 0 0% 100%;
+
+		--border: 0 0% 15%;
+		--input: 0 0% 15%;
+		--ring: 212.7 26.8% 83.9%;
+
+		--radius: 0.5rem;
+
+		/* gradients generated using the scrim method https://larsenwork.com/easing-gradients/ */
+		--smooth-gradient-stops-white-transparent: rgba(255, 255, 255, 1) 0%,
+			rgba(255, 255, 255, 0.738) 19%, rgba(255, 255, 255, 0.541) 34%,
+			rgba(255, 255, 255, 0.382) 47%, rgba(255, 255, 255, 0.278) 56.5%,
+			rgba(255, 255, 255, 0.194) 65%, rgba(255, 255, 255, 0.126) 73%,
+			rgba(255, 255, 255, 0.075) 80.2%, rgba(255, 255, 255, 0.042) 86.1%,
+			rgba(255, 255, 255, 0.021) 91%, rgba(255, 255, 255, 0.008) 95.2%,
+			rgba(255, 255, 255, 0.002) 98.2%, rgba(255, 255, 255, 0) 100%;
+		--smooth-gradient-stops-transparent-white: rgba(255, 255, 255, 0) 0%,
+			rgba(255, 255, 255, 0.002) 1.8%, rgba(255, 255, 255, 0.008) 4.8%,
+			rgba(255, 255, 255, 0.021) 9%, rgba(255, 255, 255, 0.042) 13.9%,
+			rgba(255, 255, 255, 0.075) 19.8%, rgba(255, 255, 255, 0.126) 27%,
+			rgba(255, 255, 255, 0.194) 35%, rgba(255, 255, 255, 0.278) 43.5%,
+			rgba(255, 255, 255, 0.382) 53%, rgba(255, 255, 255, 0.541) 66%,
+			rgba(255, 255, 255, 0.738) 81%, rgba(255, 255, 255, 1) 100%;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+@supports (animation-timeline: scroll()) {
+	.scroll-area-vertical [data-radix-scroll-area-viewport] {
+		width: 100%;
+		height: 100%;
+		--mask-size: 48px;
+		mask: linear-gradient(var(--smooth-gradient-stops-white-transparent)) 50% 0 / 100% 0 no-repeat,
+			linear-gradient(white, white) 50% 50% / 100% 100% no-repeat,
+			linear-gradient(var(--smooth-gradient-stops-transparent-white)) 50% 100% / 100% 100px
+				no-repeat;
+		mask-composite: exclude;
+		animation: mask-up both linear, mask-down both linear;
+		animation-timeline: scroll(self);
+		animation-range: 0 2rem, calc(100% - 2rem) 100%;
+	}
+	.scroll-area-horizontal [data-radix-scroll-area-viewport]:has([data-state="visible"]) {
+		width: 100%;
+		height: 100%;
+		--mask-size: 48px;
+		mask: 
+			linear-gradient(to right, var(--smooth-gradient-stops-white-transparent)) 0 50% / 0 100% no-repeat,
+			linear-gradient(white, white) 50% 50% / 100% 100% no-repeat,
+			linear-gradient(to right, var(--smooth-gradient-stops-transparent-white)) 100% 50% / 100px 100% no-repeat;
+		mask-composite: exclude;
+		animation: mask-left both linear, mask-right both linear;
+		animation-timeline: scroll(self x);
+		animation-range: 0 2rem, calc(100% - 2rem) 100%;
+	}
+}
+@keyframes mask-up {
+	100% {
+		mask-size: 100% 100px, 100% 100%, 100% 100px;
+	}
+}
+@keyframes mask-down {
+	100% {
+		mask-size: 100% 100px, 100% 100%, 100% 0;
+	}
+}
+@keyframes mask-left {
+	100% {
+		mask-size: 100px 100%, 100% 100%, 100px 100%;
+	}
+}
+@keyframes mask-right {
+	100% {
+		mask-size: 100px 100%, 100% 100%, 0 100%;
+	}
+}
