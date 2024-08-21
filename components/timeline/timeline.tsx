@@ -4,21 +4,16 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn, debounce } from "@/lib/utils";
 import TrackView from './trackview';
+import { useTimelineContext } from './timeline-context';
 import { Mousefollower, useMouseStickElement, useMouseStickContext } from '@/components/mousefollower';
 
-export default function Timeline({ data }: { data: TrackGroup[] }) {
-    const [currentTrackGroup, setCurrentTrackGroup] = useState<TrackGroupView>({ group: null, open: false });
-    const cursorContainer = useRef(null);
-    const { hideMouseFollower } = useMouseStickContext();
-
+export default function Timeline() {
+    const { currentTrackGroup, setGroup, setGroupOpen, toggleGroupOpen, cursorContainer, trackGroups } = useTimelineContext();
+    
     const formatter = new Intl.DateTimeFormat('en-US', {
         month: 'short',
         year: 'numeric',
     });
-
-    const setGroup = (group: TrackGroup | null, open: boolean = false) => {
-        setCurrentTrackGroup({ group, open });
-    };
 
     const debouncedSetGroup = useMemo(
         () => debounce((item: TrackGroup) => {
@@ -28,22 +23,13 @@ export default function Timeline({ data }: { data: TrackGroup[] }) {
         [currentTrackGroup.open]
     );
 
-    const openGroup = (group: TrackGroup) => {
-        setGroup(group, true);
-        hideMouseFollower();
-    };
-
-    const toggleGroup = () => {
-        setCurrentTrackGroup(prev => ({ ...prev, open: !prev.open }));
-    };
-
     const handleMouseEnter = useCallback((item: TrackGroup) => {
         debouncedSetGroup(item);
     }, [debouncedSetGroup]);
     
     return (
         <>
-            <Mousefollower container={cursorContainer} />
+            <Mousefollower deltaAxes={['y']} overflowSize={{ height: 30, width: 0 }} container={cursorContainer} />
             <div className="mx-auto flex gap-4 items-end justify-center mb-20" ref={cursorContainer}>
                 <ScrollArea className="scroll-area-horizontal" mouseScroll={true}>
                     <div
@@ -53,7 +39,7 @@ export default function Timeline({ data }: { data: TrackGroup[] }) {
                         )}
                         // onMouseLeave={() => !currentTrackGroup.open && unsetGroup()}
                     >
-                        {data.map((item, index) => {
+                        {trackGroups.map((item, index) => {
                             const childRef = useRef<HTMLDivElement>(null);
                             const ref = useMouseStickElement<HTMLButtonElement>({ 
                                 label: item.tracks.length + ' Track' + (item.tracks.length === 1 ? '' : 's'), 
@@ -67,7 +53,7 @@ export default function Timeline({ data }: { data: TrackGroup[] }) {
                                     className={cn("relative w-[9px] flex-shrink-0 flex-grow-0 h-full rounded outline-none", item.value === 0 && 'cursor-default')}
                                     onMouseEnter={() => handleMouseEnter(item)}
                                     onFocus={() => handleMouseEnter(item)}
-                                    onClick={() => openGroup(item)}
+                                    onClick={() => setGroupOpen(item)}
                                     tabIndex={item.value === 0 ? -1 : 0}
                                     disabled={item.value === 0}
                                     ref={ref}
@@ -96,8 +82,7 @@ export default function Timeline({ data }: { data: TrackGroup[] }) {
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
             </div>
-            {/* TODO: throttle the rerendering of this component cause it lags with a lot of images */}
-            <TrackView currentTrackGroup={currentTrackGroup} toggleGroup={toggleGroup} />
+            <TrackView />
         </>
     );
 }

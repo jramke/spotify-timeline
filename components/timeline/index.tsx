@@ -1,4 +1,4 @@
-import Timeline from "./timeline";
+import TimelineWrapper from "./timeline-wrapper";
 import TimelineSkeleton from "./timeline-skeleton";
 
-export { Timeline, TimelineSkeleton };
+export { TimelineWrapper as Timeline, TimelineSkeleton };

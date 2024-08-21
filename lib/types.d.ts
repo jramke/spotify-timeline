@@ -13,15 +13,12 @@ type TrackGroup = {
 	value: number;
 	tracks: Track[];
 	percentage?: number;
+	nextIndex?: number;
+	prevIndex?: number;
 };
 
 type GroupedTracks = {
 	[key: string]: Track[] | undefined;
-};
-
-type TrackGroupView = {
-    group: TrackGroup | null;
-    open: boolean;
 };
 
 type Playlist = {

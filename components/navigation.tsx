@@ -3,13 +3,14 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { TextLink } from "./ui/text-link";
 
 function NavLink({ href, children, className }: { href: string, children: React.ReactNode, className?: string }) {
     const currentPath = usePathname();
     return (
-        <Link href={href} className={cn("transition-colors hover:text-foreground focus-visible:text-foreground", currentPath === href && "text-foreground", className)}>
+        <TextLink href={href} className={cn("no-underline", currentPath === href && "text-foreground", className)}>
             {children}
-        </Link>
+        </TextLink>
     );
 }
 

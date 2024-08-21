@@ -2,10 +2,12 @@ import { ApiService } from '@/lib/services/api';
 import { Timeline, TimelineSkeleton } from '@/components/timeline';
 import Image from 'next/image';
 import { MouseStickProvider } from '@/components/mousefollower';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { TextLink } from '@/components/ui/text-link';
+import Spotify from '@/components/spotify-logo';
 
 async function PlaylistInfo({ id }: { id: string }) {
 	const playlists = await ApiService.getPlaylists();
@@ -20,6 +22,11 @@ async function PlaylistInfo({ id }: { id: string }) {
 					<span className="sr-only">Back to Playlists</span>
 				</Link>
 			</Button>
+			<TextLink target="_blank" className="absolute top-1/2 -translate-y-1/2 right-0 text-xs" href={`https://open.spotify.com/playlist/${id}`}>
+				Open in Spotify
+				{/* <Spotify aria-hidden="true" className="inline-block size-3 ml-1 -translate-y-[1px] grayscale" /> */}
+				<ArrowUpRight aria-hidden="true" className="size-4 inline-block ml-0.5" />
+			</TextLink>
 			{playlist ? (
 				<>
 					{thumbnailUrl ? (
@@ -50,9 +57,7 @@ async function PlaylistTimeline({ id }: { id: string }) {
 	if (tracks.length === 0) return null;
 
 	return (
-		<MouseStickProvider>
-			<Timeline data={tracks} />
-		</MouseStickProvider>
+		<Timeline data={tracks} />
 	);
 }
 

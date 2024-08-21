@@ -40,11 +40,11 @@ export default function TimelineSkeleton() {
                             >
                                 <div className="absolute size-full inset-0 flex flex-col items-center justify-end">
                                     {item.percentage === 0 ? (
-                                        <Skeleton className="rounded w-[2px] h-4" />
+                                        <Skeleton className="rounded w-[3px] h-4" />
                                     ) : (
                                         <>
                                             <Skeleton
-                                                className="rounded w-[4px] h-full"   
+                                                className="rounded w-[5px] h-full"   
                                             />
                                         </>
                                     )}

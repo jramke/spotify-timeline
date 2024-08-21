@@ -5,28 +5,22 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEffect, memo } from 'react';
 import { X } from "lucide-react"
 import { Button } from '@/components/ui/button';
-
-type TrackViewProps = {
-	currentTrackGroup: TrackGroupView;
-	toggleGroup: () => void;
-};
+import { textLinkClass } from '@/components/ui/text-link';
+import { useTimelineContext } from './timeline-context';
 
 const formatter = new Intl.DateTimeFormat('en-US', {
 	month: 'short',
 	year: 'numeric',
 });
 
-function TrackViewGrid({
-	currentTrackGroup,
-    toggleGroup,
-}: {
-	currentTrackGroup: TrackGroupView;
-    toggleGroup: () => void;
-}) {
+function TrackViewGrid() {
+	const { currentTrackGroup, toggleGroupOpen, setGroup, nextTrackGroup, prevTrackGroup } = useTimelineContext();
+	
 	if (!currentTrackGroup.group) return null;
+
 	return (
 		<div className="relative h-full">
-			<Button onClick={toggleGroup} size="icon" variant="ghost" className="absolute -right-1 -top-1 z-10">
+			<Button onClick={toggleGroupOpen} size="icon" variant="ghost" className="absolute -right-1 -top-1 z-10">
                 <X aria-hidden="true" className="size-5 text-muted-foreground" />
 				<span className="sr-only">Close track overview</span>
 			</Button>
@@ -45,17 +39,16 @@ function TrackViewGrid({
 					{currentTrackGroup.group.value === 1 ? '' : 's'}
 				</motion.span>
 			</div>
-            <div className="pt-16 h-full -ml-3 -mr-3">
+            <div className="pt-16 h-full -ml-3 -mr-3 relative">
                 <ScrollArea className="scroll-area-vertical h-full px-3">
-                    <div className="grid gap-4 grid-cols-5">
+                    <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 pb-20">
                         {currentTrackGroup.group!.tracks.map((track, index) => {
                             if (!track.image?.url) return null;
 
                             return (
-                                <div>
+                                <div key={index}>
                                     <motion.div
                                         layoutId={`trackview-cover-wrapper-${index}`}
-                                        key={index}
                                         className="relative grid place-items-center rounded shadow-inner-shadow-float"
                                     >
                                         <Image
@@ -73,16 +66,24 @@ function TrackViewGrid({
                         })}
                     </div>
                 </ScrollArea>
+				<div className="absolute bottom-4 left-1/2 -translate-x-1/2 p-3 bg-card rounded-lg shadow-inner-shadow-float flex gap-4 items-center">
+					<button onClick={() => setGroup(prevTrackGroup, true)} className={cn(textLinkClass, !prevTrackGroup && "opacity-30 pointer-events-none")} disabled={!prevTrackGroup}>
+						{/* <ChevronLeft aria-hidden="true" className="size-5 translate-y-[1px]" /> */}
+						Previous
+					</button>
+					<button onClick={() => setGroup(nextTrackGroup, true)} className={cn(textLinkClass, !nextTrackGroup && "opacity-30 pointer-events-none")} disabled={!nextTrackGroup}>
+						Next
+						{/* <ChevronRight aria-hidden="true" className="size-5 translate-y-[1px]" /> */}
+					</button>
+				</div>
             </div>
 		</div>
 	);
 }
 
-const TrackViewTeaser = memo(({
-	currentTrackGroup,
-}: {
-	currentTrackGroup: TrackGroupView;
-}) => {
+const TrackViewTeaser = memo(() => {
+	const { currentTrackGroup } = useTimelineContext();
+
 	if (!currentTrackGroup.group) return null;
 
 	return (
@@ -118,23 +119,6 @@ const TrackViewTeaser = memo(({
 								width={100}
 								height={100}
 							/>
-							{/* {index < 4 ? (
-								<Image
-									src={track.image.url}
-									alt={`${track.name} Cover`}
-									className={cn('size-full rounded')}
-									width={100}
-									height={100}
-								/>
-							) : (
-								<Image
-									src={track.image.url}
-									alt={`${track.name} Cover`}
-									className={cn('size-full rounded')}
-									width={10}
-									height={10}
-								/>
-							)} */}
 						</motion.div>
 					);
 				})}
@@ -158,40 +142,39 @@ const TrackViewTeaser = memo(({
 	);
 });
 
-export default function TrackView({
-	currentTrackGroup,
-	toggleGroup,
-}: TrackViewProps) {
-	if (!currentTrackGroup.group) return null;
+export default function TrackView() {
+	const { currentTrackGroup, toggleGroupOpen } = useTimelineContext();
 
 	useEffect(() => {
 		function onKeyDown(event: KeyboardEvent) {
 			if (event.key === 'Escape') {
-				toggleGroup();
+				toggleGroupOpen();
 			}
 		}
 
 		window.addEventListener('keydown', onKeyDown);
 		return () => window.removeEventListener('keydown', onKeyDown);
-	}, []);
+	}, [toggleGroupOpen]);
+
+	if (!currentTrackGroup || !currentTrackGroup.group) return null;
 
 	return (
 		<div className="fixed inset-4 pointer-events-none flex items-end justify-center">
 			<motion.div
 				layout
 				style={{ borderRadius: 12 }}
-				onClick={() => !currentTrackGroup.open && toggleGroup()}
+				onClick={() => !currentTrackGroup.open && toggleGroupOpen()}
 				whileTap={{ scale: currentTrackGroup.open ? 1 : 0.98 }}
 				className={cn(
-					'inline-block rounded-card pointer-events-auto shadow-inner-shadow-float bg-card p-4 mx-auto',
+					'inline-block pointer-events-auto shadow-inner-shadow-float bg-card p-4 mx-auto',
 					currentTrackGroup.open ? 'size-full' : ''
 				)}
 			>
 				<AnimatePresence>
 					{currentTrackGroup.open ? (
-						<TrackViewGrid toggleGroup={toggleGroup} currentTrackGroup={currentTrackGroup} />
+						<TrackViewGrid />
 					) : (
-						<TrackViewTeaser currentTrackGroup={currentTrackGroup} />
+						<TrackViewTeaser />
 					)}
 				</AnimatePresence>
 			</motion.div>

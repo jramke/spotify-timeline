@@ -6,14 +6,14 @@ import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
   `
-    inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background scale-[1.002] transition-all  
+    inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm ring-offset-background scale-[1.002] transition-all  
     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2  
     disabled:pointer-events-none disabled:opacity-50
   `,
   {
     variants: {
       variant: {
-        default: "bg-spotify text-spotify-foreground shadow-inner-shadow-float hover:bg-spotify/90 motion-safe:animate-tap active:hover:animate-tap-stop active:focus:animate-tap-stop active:hover:scale-[0.97] active:shadow-inner",
+        default: "font-bold bg-spotify text-spotify-foreground shadow-inner-shadow-float hover:bg-spotify/90 motion-safe:animate-tap active:hover:animate-tap-stop active:focus:animate-tap-stop active:hover:scale-[0.97] active:shadow-inner",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:

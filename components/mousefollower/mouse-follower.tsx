@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
 import * as Portal from '@radix-ui/react-portal';
 import { cn } from '@/lib/utils';
 import { useMouseStickContext } from './mouse-stick-context';
 
 import type { MousefollowerProps, StickElement } from './types';
+import type { ReactNode } from 'react';
 
 const Mousefollower = ({
 	stiffness = 400,
@@ -15,11 +16,15 @@ const Mousefollower = ({
 	defaultRadius = 999,
 	defaultOpacity = 0,
 	container = null,
+	deltaAxes = ['x', 'y'],
+	deltaValue = 0.1,
+	overflowSize = { height: 0, width: 0 },
 }: MousefollowerProps) => {
 	const cursorRef = useRef(null);
 	const [isSticking, setIsSticking] = useState(false);
 	const [currentStickElement, setCurrentStickElement] = useState<HTMLElement | null>(null);
 	const [labels, setLabels] = useState({ stickLabel: '', stickSublabel: '' });
+	const [content, setContent] = useState<ReactNode | null>(null);
 	const { stickElements, setHideMouseFollower } = useMouseStickContext();
 
 	const pos = {
@@ -31,8 +36,10 @@ const Mousefollower = ({
 	const borderRadius = useSpring(defaultRadius, { stiffness, damping });
 	const opacity = useSpring(defaultOpacity, { stiffness, damping });
 	const yDelta = useSpring(0, { stiffness: 400, damping: 40 });
+	const xDelta = useSpring(0, { stiffness: 400, damping: 40 });
 
 	const combinedY = useTransform(() => pos.y.get() + yDelta.get());
+	const combinedX = useTransform(() => pos.x.get() + xDelta.get());
 
 	const mouseEventsController = new AbortController();
 	const focusEventsController = new AbortController();
@@ -45,34 +52,19 @@ const Mousefollower = ({
 		if (!stickElement) return;
 
 		const targetElement = stickElement.childElement || stickElement.element;
-		handleStickToElement(targetElement, targetElement.getBoundingClientRect().top + targetElement.getBoundingClientRect().height / 2);
+		handleStickToElement(targetElement, targetElement.getBoundingClientRect().top + targetElement.getBoundingClientRect().height / 2, targetElement.getBoundingClientRect().left + targetElement.getBoundingClientRect().width / 2);
 	}, [stickElements]);
-
-	// const handleStickFocusLeave = useCallback((e: FocusEvent) => {
-	// 	const lastElement = e.target as HTMLElement;
-
-	// 	// const mouseY = lastElement.getBoundingClientRect().top + lastElement.getBoundingClientRect().height / 2;
-	// 	// const mouseX = lastElement.getBoundingClientRect().left + lastElement.getBoundingClientRect().width / 2;
-		
-	// }, []);
 
 	const handleMouseMove = useCallback((e: MouseEvent) => {
 		const { clientX: mouseX, clientY: mouseY } = e;
 		const stickElement = findStickElement(mouseX, mouseY, stickElements);
 	
 		if (stickElement) {
-			handleStickToElement(stickElement.childElement || stickElement.element, mouseY);
+			handleStickToElement(stickElement.childElement || stickElement.element, mouseY, mouseX);
 		} else {
 			handleUnstick(mouseX, mouseY);
 		}
 	}, [stickElements]);
-
-	// const handleMouseLeave = useCallback((e: MouseEvent) => {
-	// 	// const { clientX: mouseX, clientY: mouseY } = e;
-	// 	// handleUnstick(mouseX, mouseY);
-	// 	// opacity.set(0);
-	// 	hideMouseFollower(e);
-	// }, []);
 
 	useEffect(() => {		
 		let containerEl: HTMLElement;
@@ -130,14 +122,23 @@ const Mousefollower = ({
 	function updateYDelta(element: HTMLElement, mouseY: number) {
 		const rect = element.getBoundingClientRect();
 		const elementCenterY = rect.top + rect.height / 2;
-		const maxDelta = rect.height * 0.1;
+		const maxDelta = rect.height * deltaValue;
 		const newDelta = ((mouseY - elementCenterY) / rect.height) * maxDelta;
 		yDelta.set(newDelta);
 	}
 
-	function handleStickToElement(element: HTMLElement, mouseY: number) {
+	function updateXDelta(element: HTMLElement, mouseX: number) {
+		const rect = element.getBoundingClientRect();
+		const elementCenterX = rect.left + rect.width / 2;
+		const maxDelta = rect.width * deltaValue;
+		const newDelta = ((mouseX - elementCenterX) / rect.width) * maxDelta;
+		xDelta.set(newDelta);
+	}
+
+	function handleStickToElement(element: HTMLElement, mouseY: number, mouseX: number) {
 		if (isSticking && currentStickElement === element) {
-			updateYDelta(element, mouseY);
+			if (deltaAxes.includes('x')) updateXDelta(element, mouseX);
+			if (deltaAxes.includes('y')) updateYDelta(element, mouseY);
 			return;
 		}
 
@@ -156,6 +157,7 @@ const Mousefollower = ({
 		pos.x.set(rect.left);
 		pos.y.set(rect.top);
 		yDelta.set(0);
+		xDelta.set(0);
 
 		setIsSticking(true);
 		
@@ -167,9 +169,11 @@ const Mousefollower = ({
 				stickLabel: stickElement.label || '',
 				stickSublabel: stickElement.sublabel || '',
 			});
+			setContent(stickElement.content || null);
 		}
 
 		updateYDelta(targetElement, mouseY);
+		updateXDelta(targetElement, mouseX);
 	}
 
 	function handleUnstick(mouseX: number, mouseY: number) {	
@@ -178,9 +182,11 @@ const Mousefollower = ({
 		borderRadius.set(defaultRadius);
 		opacity.set(defaultOpacity);
 		yDelta.set(0);
+		xDelta.set(0);
 		setIsSticking(false);
 		setCurrentStickElement(null);
 		setLabels({ stickLabel: '', stickSublabel: '' });
+		setContent(null);
 
 		pos.x.set(mouseX - defaultSize / 2);
 		pos.y.set(mouseY - defaultSize / 2);
@@ -214,7 +220,7 @@ const Mousefollower = ({
 					!isSticking && 'overflow-hidden'
 				)}
 				style={{
-					x: pos.x,
+					x: combinedX,
 					y: combinedY,
 					width,
 					height,
@@ -222,17 +228,16 @@ const Mousefollower = ({
 					opacity,
 				}}
 			>
-				{/* {isSticking && (
-					<div className="absolute w-20 h-[calc(100%+100px)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-background inset-0 rounded-[50%]"></div>
-				)} */}
-				<div className="absolute w-full h-[calc(100%+60px)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-spotify inset-0 rounded-[inherit] shadow-inner-shadow-float"></div>
+				<div style={{ height: `calc(100% + ${overflowSize.height * 2}px)`, width: `calc(100% + ${overflowSize.width * 2}px)` }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-spotify inset-0 rounded-[inherit] shadow-inner-shadow-float grid place-items-center">
+					{content}
+				</div>
 				{labels.stickLabel && (
-					<div className="absolute bottom-[calc(100%+30px)] left-1/2 -translate-x-1/2 text-nowrap text-sm mb-2">
+					<div style={{ bottom: `calc(100% + ${overflowSize.height}px)` }} className="absolute left-1/2 -translate-x-1/2 text-nowrap text-sm mb-2">
 						{labels.stickLabel}
 					</div>
 				)}
 				{labels.stickSublabel && (
-					<div className="absolute top-[calc(100%+30px)] left-1/2 -translate-x-1/2 text-nowrap text-sm mt-2">
+					<div style={{ top: `calc(100% + ${overflowSize.height}px)` }} className="absolute left-1/2 -translate-x-1/2 text-nowrap text-sm mt-2">
 						{labels.stickSublabel}
 					</div>
 				)}

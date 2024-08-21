@@ -3,7 +3,9 @@ import Section from '@/components/section';
 import Spotify from '@/components/spotify-logo';
 import { Button } from '@/components/ui/button';
 import { validateRequest } from '@/lib/auth';
+import Image from 'next/image';
 import Link from 'next/link'
+import Screenshot from '@/public/screenshot.png';
 
 export default async function Home() {
 	const { user } = await validateRequest();
@@ -12,10 +14,10 @@ export default async function Home() {
 		<>
 			<Section>
 				<div className="container max-w-[65ch]">
-					<h1 className="text-6xl font-bold tracking-tight mb-6 text-balance leading-[1.1]">
+					<h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance leading-[1.1]">
 						Beautiful Timelines of your 
 						<span aria-hidden="true">
-							<Spotify className="inline-block size-14 mx-2 -translate-y-1" />
+							<Spotify className="inline-block size-7 md:size-12 lg:size-14 mx-2 -translate-y-0.5 md:-translate-y-1" />
 						</span> 
 						Spotify Playlists
 					</h1>
@@ -29,6 +31,11 @@ export default async function Home() {
 					) : (
 						<LoginLink />
 					)}
+				</div>
+			</Section>
+			<Section className="md:pb-28">
+				<div className="container">
+					<Image src={Screenshot} className="rounded-xl border shadow-inner-shadow-float" placeholder='blur' width={1400} alt="Spotify Timelines App UI" />
 				</div>
 			</Section>
 		</>
