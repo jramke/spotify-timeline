@@ -6,5 +6,4 @@ Visualize your playlists in a beautiful minimalistic timeline.
 
 ## TODOs
 - [ ] Play songs
-- [ ] Improve caching/loading of timelines?
 - [ ] Mobile support

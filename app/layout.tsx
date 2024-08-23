@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Script from "next/script";
+import { Analytics } from "@/lib/analytics";
 
 export const metadata: Metadata = {
 	title: "Spotify Timelines",
@@ -16,9 +16,7 @@ export default function RootLayout({
 
 	return (
 		<>
-			{process.env.NODE_ENV === "production" && (
-				<Script src="https://umami.joostramke.com/script.js" data-website-id="da13d2ca-d7d3-43fa-be0c-42e26e4869a6" strategy="lazyOnload" />
-			)}
+			<Analytics />
 			<html lang="en">
 				<body className="dark">
 					<div className="flex flex-col min-h-screen">
