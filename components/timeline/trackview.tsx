@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useSpring, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useEffect, memo } from 'react';
+import React, { useEffect, memo } from 'react';
 import { X } from "lucide-react"
 import { Button } from '@/components/ui/button';
 import { textLinkClass } from '@/components/ui/text-link';
@@ -14,7 +14,7 @@ const formatter = new Intl.DateTimeFormat('en-US', {
 });
 
 function TrackViewGrid() {
-	const { currentTrackGroup, toggleGroupOpen, setGroup, nextTrackGroup, prevTrackGroup } = useTimelineContext();
+	const { currentTrackGroup, toggleGroupOpen } = useTimelineContext();
 	
 	if (!currentTrackGroup.group) return null;
 
@@ -66,17 +66,49 @@ function TrackViewGrid() {
                         })}
                     </div>
                 </ScrollArea>
-				<div className="absolute bottom-4 left-1/2 -translate-x-1/2 p-3 bg-card rounded-lg shadow-inner-shadow-float flex gap-4 items-center">
-					<button onClick={() => setGroup(prevTrackGroup, true)} className={cn(textLinkClass, !prevTrackGroup && "opacity-30 pointer-events-none")} disabled={!prevTrackGroup}>
-						{/* <ChevronLeft aria-hidden="true" className="size-5 translate-y-[1px]" /> */}
-						Previous
-					</button>
-					<button onClick={() => setGroup(nextTrackGroup, true)} className={cn(textLinkClass, !nextTrackGroup && "opacity-30 pointer-events-none")} disabled={!nextTrackGroup}>
-						Next
-						{/* <ChevronRight aria-hidden="true" className="size-5 translate-y-[1px]" /> */}
-					</button>
-				</div>
+				<PrevNextButton />
             </div>
+		</div>
+	);
+};
+
+function PrevNextButton() {
+	const { setGroup, nextTrackGroup, prevTrackGroup } = useTimelineContext();
+
+	const xBase = 50;
+	const x = useSpring(xBase, { stiffness: 500, damping: 30 });
+	const rotateY = useTransform(x, [0, 100], [-30, 30]);
+
+	const handleWrapperMouseDown = (event: any) => {
+		if (!event.currentTarget) return;
+		const rect = event.currentTarget.getBoundingClientRect();
+		const offsetX = event.clientX - rect.left;
+		const percentage = (offsetX / rect.width) * 100;
+		const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
+		x.set(clampedPercentage);
+	};
+	const resetRotation = () => {
+		x.set(xBase);
+	};
+
+	useEffect(() => {	
+		if (!prevTrackGroup || !nextTrackGroup) {
+			setTimeout(() => {
+				resetRotation();
+			}, 100);
+		}
+	}, [nextTrackGroup, prevTrackGroup]);
+
+	return (
+		<div className="absolute bottom-4 left-1/2 -translate-x-1/2" style={{ perspective: 300 }}>
+			<motion.div onMouseDown={handleWrapperMouseDown} onMouseUp={resetRotation} onMouseLeave={resetRotation} style={{ borderRadius: 8, rotateY }} className="bg-card shadow-inner-shadow-float p-3 flex gap-4 items-center">
+				<button onKeyDown={(e) => (e.key === 'Enter' || e.code === 'Space') && x.set(10)} onKeyUp={resetRotation} onClick={() => setGroup(prevTrackGroup, true)} className={cn(textLinkClass, !prevTrackGroup && "opacity-30 pointer-events-none")} disabled={!prevTrackGroup}>
+					Previous
+				</button>
+				<button onKeyDown={(e) => (e.key === 'Enter' || e.code === 'Space') && x.set(90)} onKeyUp={resetRotation} onClick={() => setGroup(nextTrackGroup, true)} className={cn(textLinkClass, !nextTrackGroup && "opacity-30 pointer-events-none")} disabled={!nextTrackGroup}>
+					Next
+				</button>
+			</motion.div>
 		</div>
 	);
 }

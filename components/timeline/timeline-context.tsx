@@ -18,7 +18,9 @@ export const TimelineProvider: React.FC<{ children: ReactNode, trackGroups: Trac
 	const findNextTrackGroup = (index: number) => {
 		let foundIndex = index;
 		let nextIndex = foundIndex;
-		if (nextIndex >= trackGroups.length) return null;
+		console.log('nextIndex', nextIndex, trackGroups);
+		
+		if (nextIndex + 1 >= trackGroups.length) return null;
 
 		while (nextIndex < trackGroups.length - 1) {
 			nextIndex++;
