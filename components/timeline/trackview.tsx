@@ -91,12 +91,14 @@ function PrevNextButton() {
 		x.set(xBase);
 	};
 
-	useEffect(() => {	
+	useEffect(() => {
+		let timeout: ReturnType<typeof setTimeout>;	
 		if (!prevTrackGroup || !nextTrackGroup) {
-			setTimeout(() => {
+			timeout = setTimeout(() => {
 				resetRotation();
 			}, 100);
 		}
+		return () => clearTimeout(timeout);
 	}, [nextTrackGroup, prevTrackGroup]);
 
 	return (
