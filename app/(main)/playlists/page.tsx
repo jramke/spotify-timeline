@@ -7,7 +7,7 @@ import PlaylistsList from '@/components/playlists-list';
 
 async function Playlists() {
 	try {
-		const playlists = (await ApiService.getPlaylists()).filter((playlist: any) => playlist.tracks.total > 0);
+		const playlists = await ApiService.getPlaylists();
 
 		return (
 			<PlaylistsList playlists={playlists} />

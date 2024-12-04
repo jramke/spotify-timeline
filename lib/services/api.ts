@@ -42,8 +42,9 @@ class CreateApiService {
 				}
 
 				const result = await response.json();
+				const items = (result.items || []).filter((playlist: any) => playlist?.tracks?.total > 0);
 
-				playlists = [...playlists, ...result.items];
+				playlists = [...playlists, ...items];
 				nextUrl = result.next;
 			}
 
