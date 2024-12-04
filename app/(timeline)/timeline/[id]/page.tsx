@@ -41,10 +41,10 @@ async function PlaylistInfo({ id }: { id: string }) {
 						</div>
 					) : null}
 					<div>
-						<h1 className="text-3xl tracking-tight font-bold">
-							{playlist.name}
-						</h1>
-						<p className="text-muted-foreground text-sm truncate">{playlist.tracks.total} Track{playlist.tracks.total > 1 ? 's' : ''}</p>
+						<h1 className="text-3xl tracking-tight font-bold">{playlist.name}</h1>
+						<p className="text-muted-foreground text-sm truncate">
+							{playlist.tracks.total} Track{playlist.tracks.total > 1 ? 's' : ''}
+						</p>
 					</div>
 				</>
 			) : null}
@@ -56,13 +56,11 @@ async function PlaylistTimeline({ id }: { id: string }) {
 	const tracks = await ApiService.getTimelineTracksFromPlaylist(id);
 	if (tracks.length === 0) return null;
 
-	return (
-		<Timeline data={tracks} />
-	);
+	return <Timeline data={tracks} />;
 }
 
 export default async function Page({
-	params: { id },
+	params: { id }
 }: {
 	params: { id: string };
 }) {

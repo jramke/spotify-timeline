@@ -10,14 +10,14 @@ export type MousefollowerProps = {
 	deltaAxes?: ('x' | 'y')[];
 	deltaValue?: number;
 	overflowSize?: { height: number; width: number };
-}
+};
 
 export type UseMouseStickElementProps<T extends HTMLElement = HTMLElement> = {
 	label?: string;
 	sublabel?: string;
 	childRef?: RefObject<HTMLElement>;
 	content?: ReactNode;
-}
+};
 
 export type StickElement = {
 	element: HTMLElement;
@@ -25,7 +25,7 @@ export type StickElement = {
 	label?: string;
 	sublabel?: string;
 	content?: ReactNode;
-}
+};
 
 export type MouseStickContextType = {
 	stickElements: StickElement[];
@@ -33,4 +33,4 @@ export type MouseStickContextType = {
 	unregisterStickElement: (element: HTMLElement) => void;
 	hideMouseFollower: () => void;
 	setHideMouseFollower: (fn: () => void) => void;
-}
+};

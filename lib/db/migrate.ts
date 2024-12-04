@@ -26,6 +26,6 @@ async function main() {
 	} catch (error) {
 		console.error('Error performing migration: ', error);
 		process.exit(1);
-  	}
+	}
 }
 main();

@@ -18,7 +18,7 @@ const Mousefollower = ({
 	container = null,
 	deltaAxes = ['x', 'y'],
 	deltaValue = 0.1,
-	overflowSize = { height: 0, width: 0 },
+	overflowSize = { height: 0, width: 0 }
 }: MousefollowerProps) => {
 	const cursorRef = useRef(null);
 	const [isSticking, setIsSticking] = useState(false);
@@ -29,7 +29,7 @@ const Mousefollower = ({
 
 	const pos = {
 		x: useSpring(0, { stiffness, damping }),
-		y: useSpring(0, { stiffness, damping }),
+		y: useSpring(0, { stiffness, damping })
 	};
 	const width = useSpring(defaultSize, { stiffness, damping });
 	const height = useSpring(defaultSize, { stiffness, damping });
@@ -44,29 +44,39 @@ const Mousefollower = ({
 	const mouseEventsController = new AbortController();
 	const focusEventsController = new AbortController();
 
-	const handleStickFocus = useCallback((event: FocusEvent) => {
-		if (!event?.target) return;
-		
-		const element = event.target as HTMLElement;
-		const stickElement = findStickElementByHTMLElement(element);
-		if (!stickElement) return;
+	const handleStickFocus = useCallback(
+		(event: FocusEvent) => {
+			if (!event?.target) return;
 
-		const targetElement = stickElement.childElement || stickElement.element;
-		handleStickToElement(targetElement, targetElement.getBoundingClientRect().top + targetElement.getBoundingClientRect().height / 2, targetElement.getBoundingClientRect().left + targetElement.getBoundingClientRect().width / 2);
-	}, [stickElements]);
+			const element = event.target as HTMLElement;
+			const stickElement = findStickElementByHTMLElement(element);
+			if (!stickElement) return;
 
-	const handleMouseMove = useCallback((e: MouseEvent) => {
-		const { clientX: mouseX, clientY: mouseY } = e;
-		const stickElement = findStickElement(mouseX, mouseY, stickElements);
-	
-		if (stickElement) {
-			handleStickToElement(stickElement.childElement || stickElement.element, mouseY, mouseX);
-		} else {
-			handleUnstick(mouseX, mouseY);
-		}
-	}, [stickElements]);
+			const targetElement = stickElement.childElement || stickElement.element;
+			handleStickToElement(
+				targetElement,
+				targetElement.getBoundingClientRect().top + targetElement.getBoundingClientRect().height / 2,
+				targetElement.getBoundingClientRect().left + targetElement.getBoundingClientRect().width / 2
+			);
+		},
+		[stickElements]
+	);
 
-	useEffect(() => {		
+	const handleMouseMove = useCallback(
+		(e: MouseEvent) => {
+			const { clientX: mouseX, clientY: mouseY } = e;
+			const stickElement = findStickElement(mouseX, mouseY, stickElements);
+
+			if (stickElement) {
+				handleStickToElement(stickElement.childElement || stickElement.element, mouseY, mouseX);
+			} else {
+				handleUnstick(mouseX, mouseY);
+			}
+		},
+		[stickElements]
+	);
+
+	useEffect(() => {
 		let containerEl: HTMLElement;
 
 		if (typeof container === 'string') {
@@ -109,12 +119,7 @@ const Mousefollower = ({
 		return (
 			stickElements.find((stickElement) => {
 				const rect = stickElement.element.getBoundingClientRect();
-				return (
-					mouseX >= rect.left &&
-					mouseX <= rect.right &&
-					mouseY >= rect.top &&
-					mouseY <= rect.bottom
-				);
+				return mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom;
 			}) || null
 		);
 	}
@@ -149,9 +154,7 @@ const Mousefollower = ({
 
 		width.set(rect.width);
 		height.set(rect.height);
-		borderRadius.set(
-			parseFloat(elementStyle.borderRadius) || defaultRadius
-		);
+		borderRadius.set(parseFloat(elementStyle.borderRadius) || defaultRadius);
 		opacity.set(parseFloat(elementStyle.opacity) || defaultOpacity);
 
 		pos.x.set(rect.left);
@@ -160,14 +163,14 @@ const Mousefollower = ({
 		xDelta.set(0);
 
 		setIsSticking(true);
-		
+
 		setCurrentStickElement(targetElement);
 
 		const stickElement = findStickElementByHTMLElement(targetElement);
 		if (stickElement) {
 			setLabels({
 				stickLabel: stickElement.label || '',
-				stickSublabel: stickElement.sublabel || '',
+				stickSublabel: stickElement.sublabel || ''
 			});
 			setContent(stickElement.content || null);
 		}
@@ -176,7 +179,7 @@ const Mousefollower = ({
 		updateXDelta(targetElement, mouseX);
 	}
 
-	function handleUnstick(mouseX: number, mouseY: number) {	
+	function handleUnstick(mouseX: number, mouseY: number) {
 		width.set(defaultSize);
 		height.set(defaultSize);
 		borderRadius.set(defaultRadius);
@@ -215,20 +218,20 @@ const Mousefollower = ({
 			<motion.div
 				aria-hidden="true"
 				ref={cursorRef}
-				className={cn(
-					'fixed z-[1000] will-change-transform pointer-events-none top-0 left-0',
-					!isSticking && 'overflow-hidden'
-				)}
+				className={cn('fixed z-[1000] will-change-transform pointer-events-none top-0 left-0', !isSticking && 'overflow-hidden')}
 				style={{
 					x: combinedX,
 					y: combinedY,
 					width,
 					height,
 					borderRadius,
-					opacity,
+					opacity
 				}}
 			>
-				<div style={{ height: `calc(100% + ${overflowSize.height * 2}px)`, width: `calc(100% + ${overflowSize.width * 2}px)` }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-spotify inset-0 rounded-[inherit] shadow-inner-shadow-float grid place-items-center">
+				<div
+					style={{ height: `calc(100% + ${overflowSize.height * 2}px)`, width: `calc(100% + ${overflowSize.width * 2}px)` }}
+					className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-spotify inset-0 rounded-[inherit] shadow-inner-shadow-float grid place-items-center"
+				>
 					{content}
 				</div>
 				{labels.stickLabel && (

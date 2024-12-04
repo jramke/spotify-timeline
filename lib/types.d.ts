@@ -1,5 +1,5 @@
 type Track = {
-    release_date: string;
+	release_date: string;
 	id: string;
 	name: string;
 	artists: any[];
@@ -24,8 +24,10 @@ type GroupedTracks = {
 type Playlist = {
 	id: string;
 	name: string;
-	images: {
-		url: string;
-	}[] | null;
+	images:
+		| {
+				url: string;
+		  }[]
+		| null;
 	tracks: { total: number };
 };

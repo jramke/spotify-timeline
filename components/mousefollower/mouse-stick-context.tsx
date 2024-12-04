@@ -11,7 +11,7 @@ export const MouseStickProvider: React.FC<{ children: ReactNode }> = ({ children
 	const [stickElements, setStickElements] = useState<StickElement[]>([]);
 	const [hideMouseFollower, setHideMouseFollower] = useState<() => void>(() => () => {});
 
-	const registerStickElement = useCallback((newElement: StickElement) => {   
+	const registerStickElement = useCallback((newElement: StickElement) => {
 		setStickElements((prev) => [...prev, newElement]);
 	}, []);
 

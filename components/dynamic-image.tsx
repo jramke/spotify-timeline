@@ -19,9 +19,7 @@ export default function DynamicImage({
 
 	const fetchBlurData = useCallback(async () => {
 		try {
-			const response = await fetch(
-				`/api/blur-placeholder?src=${encodeURIComponent(src)}`
-			);
+			const response = await fetch(`/api/blur-placeholder?src=${encodeURIComponent(src)}`);
 			if (!response.ok) {
 				throw new Error('Failed to fetch blur data');
 			}
@@ -42,15 +40,5 @@ export default function DynamicImage({
 		return null;
 	}
 
-	return (
-		<Image
-			src={src}
-			alt={alt}
-			width={localBlurData.width}
-			height={localBlurData.height}
-			placeholder="blur"
-			blurDataURL={localBlurData.base64}
-			{...props}
-		/>
-	);
+	return <Image src={src} alt={alt} width={localBlurData.width} height={localBlurData.height} placeholder="blur" blurDataURL={localBlurData.base64} {...props} />;
 }

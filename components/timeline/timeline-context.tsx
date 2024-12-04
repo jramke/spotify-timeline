@@ -7,19 +7,19 @@ import { useMouseStickContext } from '@/components/mousefollower';
 
 const TimelineContext = createContext<TimelineContextType | undefined>(undefined);
 
-export const TimelineProvider: React.FC<{ children: ReactNode, trackGroups: TrackGroup[] }> = ({ children, trackGroups }) => {
+export const TimelineProvider: React.FC<{ children: ReactNode; trackGroups: TrackGroup[] }> = ({ children, trackGroups }) => {
 	const [currentTrackGroup, setCurrentTrackGroup] = useState<TrackGroupView>({ group: null, open: false });
 	const [prevTrackGroup, setPrevTrackGroup] = useState<TrackGroup | null>(null);
 	const [nextTrackGroup, setNextTrackGroup] = useState<TrackGroup | null>(null);
 
 	const cursorContainer = useRef(null);
-    const { hideMouseFollower } = useMouseStickContext();
+	const { hideMouseFollower } = useMouseStickContext();
 
 	const findNextTrackGroup = (index: number) => {
 		let foundIndex = index;
 		let nextIndex = foundIndex;
 		console.log('nextIndex', nextIndex, trackGroups);
-		
+
 		if (nextIndex + 1 >= trackGroups.length) return null;
 
 		while (nextIndex < trackGroups.length - 1) {
@@ -50,9 +50,9 @@ export const TimelineProvider: React.FC<{ children: ReactNode, trackGroups: Trac
 	};
 
 	const setGroup = (group: TrackGroup | null, open: boolean = false) => {
-        setCurrentTrackGroup({ group, open });
+		setCurrentTrackGroup({ group, open });
 
-		const index = trackGroups.findIndex(item => item === group);
+		const index = trackGroups.findIndex((item) => item === group);
 
 		// TODO: still buggy on start and end
 		const nextGroup = findNextTrackGroup(index);
@@ -60,16 +60,16 @@ export const TimelineProvider: React.FC<{ children: ReactNode, trackGroups: Trac
 
 		setNextTrackGroup(nextGroup);
 		setPrevTrackGroup(prevGroup);
-    };
+	};
 
 	const setGroupOpen = (group: TrackGroup) => {
-        setGroup(group, true);
-        hideMouseFollower();
-    };
+		setGroup(group, true);
+		hideMouseFollower();
+	};
 
 	const toggleGroupOpen = () => {
-        setCurrentTrackGroup(prev => ({ ...prev, open: !prev.open }));
-    };
+		setCurrentTrackGroup((prev) => ({ ...prev, open: !prev.open }));
+	};
 
 	return (
 		<TimelineContext.Provider value={{ trackGroups, currentTrackGroup, prevTrackGroup, nextTrackGroup, cursorContainer, setGroupOpen, toggleGroupOpen, setGroup }}>

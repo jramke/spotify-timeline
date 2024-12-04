@@ -5,13 +5,7 @@
 import Script from 'next/script';
 
 interface EventData {
-	[key: string]:
-		| number
-		| string
-		| EventData
-		| number[]
-		| string[]
-		| EventData[];
+	[key: string]: number | string | EventData | number[] | string[] | EventData[];
 }
 
 type UmamiTracker = {
@@ -73,12 +67,8 @@ const waitForUmami = async (): Promise<UmamiTracker> => {
 	return window.umami;
 };
 
-export const trackEvent = async (
-	eventName: string,
-	eventData?: EventData
-): Promise<string> => {
-	if (['error', undefined].includes(umamiState))
-		return Promise.resolve('Umami not found.');
+export const trackEvent = async (eventName: string, eventData?: EventData): Promise<string> => {
+	if (['error', undefined].includes(umamiState)) return Promise.resolve('Umami not found.');
 
 	const umami = await waitForUmami();
 	if (eventData) {
@@ -91,7 +81,7 @@ export const trackEvent = async (
 export function Analytics({
 	srcUrl,
 	websiteId,
-	hideInDev = true,
+	hideInDev = true
 }: {
 	srcUrl?: string;
 	websiteId?: string;
@@ -101,9 +91,7 @@ export function Analytics({
 	const id = websiteId || process.env.NEXT_PUBLIC_UMAMI_ID;
 
 	if (!src || !id) {
-		throw new Error(
-			'Umami Analytics: Please provide a srcUrl and websiteId'
-		);
+		throw new Error('Umami Analytics: Please provide a srcUrl and websiteId');
 	}
 
 	if (process.env.NODE_ENV === 'development' && hideInDev) {

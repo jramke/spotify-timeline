@@ -1,110 +1,106 @@
 import { useRef, useEffect } from 'react';
 
 type MouseScrollOptions = {
-    disabled?: boolean;
-    edgeThreshold?: number;
-    maxScrollSpeed?: number;
+	disabled?: boolean;
+	edgeThreshold?: number;
+	maxScrollSpeed?: number;
 };
 
-export function useMouseScroll({
-    disabled = false,
-    edgeThreshold = 50,
-    maxScrollSpeed = 30,
-}: MouseScrollOptions = {}) {
-    const elementRef = useRef<HTMLDivElement>(null);
+export function useMouseScroll({ disabled = false, edgeThreshold = 50, maxScrollSpeed = 30 }: MouseScrollOptions = {}) {
+	const elementRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        let element = elementRef.current;
-        if (disabled || !element) return;   
-        
-        if (element.contains(document.activeElement)) return;
+	useEffect(() => {
+		let element = elementRef.current;
+		if (disabled || !element) return;
 
-        let isScrolling = false;
-        let scrollDirection: 'left' | 'right' | null = null;
-        let animationFrameId: number | null = null;
-        let latestMouseEvent: MouseEvent | null = null;
+		if (element.contains(document.activeElement)) return;
 
-        function handleMouseMove(event: MouseEvent) {
-            if (!element) return;
-            
-            latestMouseEvent = event;
-            const rect = element.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
+		let isScrolling = false;
+		let scrollDirection: 'left' | 'right' | null = null;
+		let animationFrameId: number | null = null;
+		let latestMouseEvent: MouseEvent | null = null;
 
-            if (mouseX < edgeThreshold) {
-                scrollDirection = 'left';
-                if (!isScrolling) {
-                    isScrolling = true;
-                    scrollContent();
-                }
-            } else if (mouseX > rect.width - edgeThreshold) {
-                scrollDirection = 'right';
-                if (!isScrolling) {
-                    isScrolling = true;
-                    scrollContent();
-                }
-            } else {
-                scrollDirection = null;
-                isScrolling = false;
-                if (animationFrameId !== null) {
-                    cancelAnimationFrame(animationFrameId);
-                    animationFrameId = null;
-                }
-            }
-        }
+		function handleMouseMove(event: MouseEvent) {
+			if (!element) return;
 
-        function handleMouseLeave() {
-            scrollDirection = null;
-            isScrolling = false;
-            if (animationFrameId !== null) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-        }
+			latestMouseEvent = event;
+			const rect = element.getBoundingClientRect();
+			const mouseX = event.clientX - rect.left;
 
-        function scrollContent() {
-            if (!isScrolling || !scrollDirection || !element) return;
+			if (mouseX < edgeThreshold) {
+				scrollDirection = 'left';
+				if (!isScrolling) {
+					isScrolling = true;
+					scrollContent();
+				}
+			} else if (mouseX > rect.width - edgeThreshold) {
+				scrollDirection = 'right';
+				if (!isScrolling) {
+					isScrolling = true;
+					scrollContent();
+				}
+			} else {
+				scrollDirection = null;
+				isScrolling = false;
+				if (animationFrameId !== null) {
+					cancelAnimationFrame(animationFrameId);
+					animationFrameId = null;
+				}
+			}
+		}
 
-            const scrollAmount = calculateScrollSpeed();
+		function handleMouseLeave() {
+			scrollDirection = null;
+			isScrolling = false;
+			if (animationFrameId !== null) {
+				cancelAnimationFrame(animationFrameId);
+				animationFrameId = null;
+			}
+		}
 
-            if (scrollDirection === 'left') {
-                element.scrollLeft -= scrollAmount;
-            } else if (scrollDirection === 'right') {
-                element.scrollLeft += scrollAmount;
-            }
+		function scrollContent() {
+			if (!isScrolling || !scrollDirection || !element) return;
 
-            animationFrameId = requestAnimationFrame(scrollContent);
-        }
+			const scrollAmount = calculateScrollSpeed();
 
-        function calculateScrollSpeed(): number {
-            if (!latestMouseEvent || !element) return 0;
+			if (scrollDirection === 'left') {
+				element.scrollLeft -= scrollAmount;
+			} else if (scrollDirection === 'right') {
+				element.scrollLeft += scrollAmount;
+			}
 
-            const rect = element.getBoundingClientRect();
-            const mouseX = latestMouseEvent.clientX - rect.left;
+			animationFrameId = requestAnimationFrame(scrollContent);
+		}
 
-            let proximity = 0;
+		function calculateScrollSpeed(): number {
+			if (!latestMouseEvent || !element) return 0;
 
-            if (scrollDirection === 'left') {
-                proximity = Math.max(0, edgeThreshold - mouseX);
-            } else if (scrollDirection === 'right') {
-                proximity = Math.max(0, mouseX - (rect.width - edgeThreshold));
-            }
+			const rect = element.getBoundingClientRect();
+			const mouseX = latestMouseEvent.clientX - rect.left;
 
-            const speed = (proximity / edgeThreshold) * maxScrollSpeed;
-            return Math.min(speed, maxScrollSpeed);
-        }
+			let proximity = 0;
 
-        element.addEventListener('mousemove', handleMouseMove);
-        element.addEventListener('mouseleave', handleMouseLeave);
+			if (scrollDirection === 'left') {
+				proximity = Math.max(0, edgeThreshold - mouseX);
+			} else if (scrollDirection === 'right') {
+				proximity = Math.max(0, mouseX - (rect.width - edgeThreshold));
+			}
 
-        return () => {
-            element.removeEventListener('mousemove', handleMouseMove);
-            element.removeEventListener('mouseleave', handleMouseLeave);
-            if (animationFrameId !== null) {
-                cancelAnimationFrame(animationFrameId);
-            }
-        };
-    }, [disabled, edgeThreshold, maxScrollSpeed]);
+			const speed = (proximity / edgeThreshold) * maxScrollSpeed;
+			return Math.min(speed, maxScrollSpeed);
+		}
 
-    return elementRef;
+		element.addEventListener('mousemove', handleMouseMove);
+		element.addEventListener('mouseleave', handleMouseLeave);
+
+		return () => {
+			element.removeEventListener('mousemove', handleMouseMove);
+			element.removeEventListener('mouseleave', handleMouseLeave);
+			if (animationFrameId !== null) {
+				cancelAnimationFrame(animationFrameId);
+			}
+		};
+	}, [disabled, edgeThreshold, maxScrollSpeed]);
+
+	return elementRef;
 }

@@ -10,7 +10,7 @@ export function useMouseStickElement<T extends HTMLElement = HTMLElement>({ labe
 	const ref = useRef<T>(null);
 	const { registerStickElement, unregisterStickElement } = useMouseStickContext();
 
-	useEffect(() => {	
+	useEffect(() => {
 		if (!ref.current) return;
 
 		const element = ref.current;
@@ -24,4 +24,4 @@ export function useMouseStickElement<T extends HTMLElement = HTMLElement>({ labe
 	}, [label, sublabel, childRef, registerStickElement, unregisterStickElement]);
 
 	return ref;
-};
+}
